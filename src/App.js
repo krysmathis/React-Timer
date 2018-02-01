@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import TimerList from './TimerList.js';
 import * as firebase from "firebase";
+import {Button, Collection, CollectionItem, Row, Input, Col} from 'react-materialize'
 
 
 // Initialize Firebase
-// TODO: Replace with your project's customized code snippet
 var config = {
   apiKey: "AIzaSyC8XhJs3X_-vpoOmvS6HShJPZdwjaE_39k",
   authDomain: "react-timer-c4024.firebaseapp.com",
@@ -13,39 +13,119 @@ var config = {
   storageBucket: "",
   messagingSenderId: "990870043209"
 };
-firebase.initializeApp(config);
 
+
+
+firebase.initializeApp(config);
+const database = firebase.database();
+
+/*
+  The app controls:
+  1. Manipulating the data from and to the database
+  2. It renders the TimerList
+
+*/
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      storedTimers: [
-        {name: "coffee", limit: 20},
-        {name: "breakfast", limit: 10}
-      ]
+      storedTimers: [],
+      showTimers: false,
+      showForm: false,
+      isLoading: true,
     }
+    // handle the binding of the input forms 'this' is available
+    this.handleNameChange = this.handleNameChange.bind(this);
+    this.handleTimeChange = this.handleTimeChange.bind(this);
   }
 
+  // Updating the record of when the user logs in
   componentWillMount(){
-    var database = firebase.database();
-    var ref = database.ref('/timer/')
-    ref.set({
-      "user": "Krys",
-      "action": "login", 
-      "timestamp": firebase.database.ServerValue.TIMESTAMP
-    });
-      
-    }
+    const ref = database.ref('/timer/');
+    // Attach an asynchronous callback to read the data at our posts reference
+      ref.on("value", (snapshot) => {
+
+        let data = snapshot.val();
+        if (data === null) {
+          return;
+        }
+        // convert the object into an array of values
+        let timers = Object.keys(data).map(key => {
+            data[key].id = key;
+            return data[key];
+        });
+        this.setState({
+          storedTimers: timers,
+          isLoading: false
+        });
+          
+        }, function (errorObject) {
+          console.log("The read failed: " + errorObject.code);
+        });
+  }
     
   
-
-
-  generateTimers() {
-        return <TimerList timers={this.state.storedTimers}/>
+  // Send data up to the database
+  handlePost(name, time) {
+    const ref = database.ref('/timer/');
+    ref.push({
+      "name": name,
+      "limit": time
+    })
   }
 
+  // for the renderer to render a timer for each of the storedTimers
+  generateTimers() {
+        return <Collection><TimerList timers={this.state.storedTimers} post={this.handlePost}/></Collection>
+  }
+
+  // tied to the name input
+  handleNameChange(event) {
+    this.setState({name: event.target.value});
+  }
+
+  // tied to the time input
+  handleTimeChange (event) {
+      this.setState({time: event.target.value});
+  }
+
+  // Preparing the data for the post request
+  handleSubmit = (event) => {
+      
+      if (this.state.name.length > 0) {
+          this.handlePost(this.state.name, this.state.time);
+      }
+      event.preventDefault();
+  }
+
+  // display the form if the database load is complete
+  displayForm() {
+    return (
+      <div> 
+        <Row>
+          <form onSubmit={this.handleSubmit}>
+              <Input type="text" name="name" label="Timer Name" value={this.state.name} onChange={this.handleNameChange} />
+              <Input type="text" name="time" label="Time Limit" value={this.state.seconds} onChange={this.handleTimeChange} />
+              <Button floating large className='red' waves='light' icon='add' type="submit" onClick={this.handleSubmit} value="">Click</Button>
+          </form>
+        </Row>
+          
+      </div>
+    );
+  }
+
+
   render() {
-    return (<div>{this.generateTimers()}</div>);
+    return (
+      <Row>
+        <Col s={12} className='grid-example'>
+      <div>
+        {this.state.isLoading===true ? "Loading..." : this.generateTimers() }
+        {this.state.isLoading===true ? null : this.displayForm() }
+      </div>
+      </Col>
+      </Row>
+    );
   }
 }
 

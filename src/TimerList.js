@@ -1,30 +1,41 @@
 import React from 'react';
+import {Collection, CollectionItem} from 'react-materialize'
 
 /*
     The TimerList component generates the TimerListItems
 */
 class TimerList extends React.Component {
-  
+    constructor(props) {
+        super(props);
+        this.state = {
+            value: null
+        }
+    }
+    
 
     showTimers = () => {
         const timers= this.props.timers;
-        const listTimers = timers.map((timer, index) => 
-            <div key={index}><TimerItem name={timer.name} limit={timer.limit} /></div>
-        );
-        return (<ul>{listTimers}</ul>);
+        if (timers.length > 0){
+            const listTimers = timers.map((timer, index) => 
+                <CollectionItem className="lemon" key={index}><TimerItem name={timer.name} limit={timer.limit} /></CollectionItem>
+            );
+            return (listTimers);
+        } else {
+            return null;
+        }
     }
+
 
     render() {
         return (
-            <ul>
-                {this.showTimers()}
-            </ul>
+                this.showTimers()
         );
     }
     
 }
 
 export default TimerList;
+
 
 /*
     The timer item calls the actual timer itself
