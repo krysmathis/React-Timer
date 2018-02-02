@@ -40,7 +40,7 @@ class App extends Component {
   // Updating the record of when the user logs in
   componentWillMount(){
     const ref = database.ref('/timer/');
-    // Attach an asynchronous callback to read the data at our posts reference
+    
       ref.on("value", (snapshot) => {
 
         let data = snapshot.val();
@@ -62,16 +62,14 @@ class App extends Component {
         });
   }
   
-  
-    
-  
+
   // Send data up to the database
   handlePost(name, time) {
     const ref = database.ref('/timer/');
     ref.push({
       "name": name,
       "limit": time
-    })
+    });
   }
 
     // Send data up to the database
@@ -82,7 +80,7 @@ class App extends Component {
 
   // for the renderer to render a timer for each of the storedTimers
   generateTimers() {
-        return <Collection><TimerList timers={this.state.storedTimers} post={this.handlePost} delete={this.handleDelete}/></Collection>
+        return <Collection><TimerList timers={this.state.storedTimers} delete={this.handleDelete}/></Collection>
   }
 
   // tied to the name input
