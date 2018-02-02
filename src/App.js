@@ -14,8 +14,6 @@ var config = {
   messagingSenderId: "990870043209"
 };
 
-
-
 firebase.initializeApp(config);
 const database = firebase.database();
 
