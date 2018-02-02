@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import TimerList from './TimerList.js';
 import * as firebase from "firebase";
-import {Button, Collection, CollectionItem, Row, Input, Col} from 'react-materialize'
+import {Button, Collection, Row, Input} from 'react-materialize'
 
 
 // Initialize Firebase
@@ -61,6 +61,8 @@ class App extends Component {
           console.log("The read failed: " + errorObject.code);
         });
   }
+  
+  
     
   
   // Send data up to the database
@@ -72,26 +74,39 @@ class App extends Component {
     })
   }
 
+    // Send data up to the database
+  handleDelete(id) {
+    const ref = database.ref('/timer/' + id);
+    ref.remove();
+  }
+
   // for the renderer to render a timer for each of the storedTimers
   generateTimers() {
-        return <Collection><TimerList timers={this.state.storedTimers} post={this.handlePost}/></Collection>
+        return <Collection><TimerList timers={this.state.storedTimers} post={this.handlePost} delete={this.handleDelete}/></Collection>
   }
 
   // tied to the name input
   handleNameChange(event) {
-    this.setState({name: event.target.value});
+    this.setState({title: event.target.value});
   }
 
   // tied to the time input
   handleTimeChange (event) {
-      this.setState({time: event.target.value});
+    this.setState({time: event.target.value});
   }
 
+  isNumeric(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+  }
   // Preparing the data for the post request
   handleSubmit = (event) => {
       
-      if (this.state.name.length > 0) {
-          this.handlePost(this.state.name, this.state.time);
+      if (this.state.title.length > 0 && this.isNumeric(this.state.time)) {
+          this.handlePost(this.state.title, this.state.time);
+          this.setState({
+            title: "",
+            time: ""
+          });
       }
       event.preventDefault();
   }
@@ -102,7 +117,7 @@ class App extends Component {
       <div> 
         <Row>
           <form onSubmit={this.handleSubmit}>
-              <Input type="text" name="name" label="Timer Name" value={this.state.name} onChange={this.handleNameChange} />
+              <Input type="text" name="title" label="Timer Name" value={this.state.name} onChange={this.handleNameChange} />
               <Input type="text" name="time" label="Time Limit" value={this.state.seconds} onChange={this.handleTimeChange} />
               <Button floating large className='red' waves='light' icon='add' type="submit" onClick={this.handleSubmit} value="">Click</Button>
           </form>
@@ -115,13 +130,16 @@ class App extends Component {
 
   render() {
     return (
-      <Row>
-        <Col s={12} className='grid-example'>
+
+      <Row className="timer__main">
+        <div>
+        <h4>ReactTimer</h4>
+
+        </div>
       <div>
         {this.state.isLoading===true ? "Loading..." : this.generateTimers() }
-        {this.state.isLoading===true ? null : this.displayForm() }
+        { this.displayForm() }
       </div>
-      </Col>
       </Row>
     );
   }

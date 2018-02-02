@@ -1,5 +1,6 @@
 import React from 'react';
-import {Collection, CollectionItem} from 'react-materialize'
+import {CollectionItem, Icon} from 'react-materialize'
+import say from './speech';
 
 /*
     The TimerList component generates the TimerListItems
@@ -17,7 +18,7 @@ class TimerList extends React.Component {
         const timers= this.props.timers;
         if (timers.length > 0){
             const listTimers = timers.map((timer, index) => 
-                <CollectionItem className="lemon" key={index}><TimerItem name={timer.name} limit={timer.limit} /></CollectionItem>
+                <CollectionItem className="lemon" key={timer.id}><TimerItem name={timer.name} limit={timer.limit} id={timer.id} delete={this.props.delete} /></CollectionItem>
             );
             return (listTimers);
         } else {
@@ -62,11 +63,18 @@ class TimerItem extends React.Component {
 
     }
 
+    handleDelete = () => {
+        this.props.delete(this.props.id);
+    }
+
     // If the user does not click on the timer item, a timer will not render
     render() {
         return (
             <div>
-                <span onClick={this.toggleRun}>Timer: {this.props.name} Length: {this.props.limit}s </span>
+                <div className="timerItem">
+                <div><span onClick={this.toggleRun}>Timer: {this.props.name} Length: {this.props.limit}s </span></div>
+                <div className="deleteListing" onClick={this.handleDelete}><Icon tiny >delete</Icon></div>
+                </div>
                 {this.state.runTimer ? <Timer name={this.props.name} limit={this.props.limit}/> : null}
             </div>
         );
@@ -96,7 +104,9 @@ class Timer extends React.Component {
         
         this.timerId = setInterval(() => {
             const prevState = Object.assign({}, this.state);
-            this.setState({time: prevState.time += 1});
+            this.setState({
+                time: prevState.time += 1,
+            });
         }, 1000);
         console.log(this.props);
     }
@@ -107,16 +117,17 @@ class Timer extends React.Component {
     }
 
     // This function ensures the component knows when it has exceede the time limit
-    isExpired = () => this.state.time > this.props.limit ? true : false;
+    isExpired = () => this.state.time >= this.props.limit ? true : false;
 
     // Toggle function for updating the display based on how much time
     // has passed relative to the time limit
     displayTime = () => {
         if (this.isExpired() === true) {
             clearInterval(this.timerId);
-            return <div>Timer Expired</div>
+            say('time is up');
+            return (<div>Timer Expired</div>);
         } else {
-            return <div>This is the {this.props.name} timer and it displays {this.state.time}</div>
+            return <div>Time remaining: {this.props.limit - this.state.time}</div>
         }
     }
 
