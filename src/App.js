@@ -131,7 +131,7 @@ class App extends Component {
 
       <Row className="timer__main">
         <div>
-        <h4>ReactTimer</h4>
+        <h4>My Stored Timers</h4>
 
         </div>
       <div>
