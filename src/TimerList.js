@@ -1,6 +1,8 @@
 import React from 'react';
 import {CollectionItem, Icon} from 'react-materialize'
 import say from './speech';
+import timesUp from './audio/micro.mp3'
+
 
 /*
     The TimerList component generates the TimerListItems
@@ -91,14 +93,18 @@ class Timer extends React.Component {
                 time: prevState.time += 1,
             });
         }, 1000);
-        console.log(this.props);
+        
+        this.timesUp = new Audio(timesUp);
     }
-
     // When the component is removed from the DOM, clear the setInterval
     componentWillUnmount() {
         clearInterval(this.timerId);
     }
 
+    playSound() {
+        clearInterval(this.timerId);
+        this.timesUp.play();
+    }
     // This function ensures the component knows when it has exceede the time limit
     isExpired = () => this.state.time >= this.props.limit ? true : false;
 
@@ -106,8 +112,7 @@ class Timer extends React.Component {
     // has passed relative to the time limit
     displayTime = () => {
         if (this.isExpired() === true) {
-            clearInterval(this.timerId);
-            say('time is up');
+            this.playSound();
             return (<div>Timer Expired</div>);
         } else {
             return <div>Time remaining: {this.props.limit - this.state.time}</div>
