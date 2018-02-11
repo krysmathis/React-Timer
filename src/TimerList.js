@@ -57,7 +57,7 @@ class TimerItem extends React.Component {
         return (
             <div>
                 <div className="timerItem">
-                <div><span onClick={this.toggleRun}>Timer: {this.props.name} Length: {this.props.limit}s </span></div>
+                <div><span onClick={this.toggleRun}>{this.props.name} - {this.props.limit}s </span></div>
                 <div className="deleteListing" onClick={this.handleDelete}><Icon tiny >delete</Icon></div>
                 </div>
                 {this.state.runTimer ? <Timer name={this.props.name} limit={this.props.limit}/> : null}
