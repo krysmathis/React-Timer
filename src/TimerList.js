@@ -1,6 +1,5 @@
 import React from 'react';
 import {CollectionItem, Icon} from 'react-materialize'
-import say from './speech';
 import timesUp from './audio/micro.mp3'
 
 
@@ -12,7 +11,7 @@ function TimerList(props) {
     const timers= props.timers;
         if (timers.length > 0){
             const listTimers = timers.map((timer, index) => 
-                <CollectionItem className="lemon" key={timer.id}><TimerItem name={timer.name} limit={timer.limit} id={timer.id} delete={props.delete} /></CollectionItem>
+                <CollectionItem className="lemon" key={timer.id}><TimerItem name={timer.name} limit={timer.limit} id={timer.id} delete={props.delete} update={props.update}/></CollectionItem>
             );
             return (listTimers);
         } else {
@@ -48,6 +47,18 @@ class TimerItem extends React.Component {
 
     }
 
+    makeUpdate = () => {
+        const obj = {
+            title: this.props.name,
+            time: this.props.limit,
+            id: this.props.id
+        }
+        
+        this.props.update(obj);
+        
+    }
+
+
     handleDelete = () => {
         this.props.delete(this.props.id);
     }
@@ -57,8 +68,11 @@ class TimerItem extends React.Component {
         return (
             <div>
                 <div className="timerItem">
-                <div><span onClick={this.toggleRun}>{this.props.name} - {this.props.limit}s </span></div>
-                <div className="deleteListing" onClick={this.handleDelete}><Icon tiny >delete</Icon></div>
+                    <div><span onClick={this.toggleRun}>{this.props.name} - {this.props.limit}s </span></div>
+                <div className="timerItem">
+                    <div className="updateListing" onClick={this.makeUpdate}><Icon tiny >update</Icon></div>
+                    <div className="deleteListing" onClick={this.handleDelete}><Icon tiny >delete</Icon></div>
+                </div>
                 </div>
                 {this.state.runTimer ? <Timer name={this.props.name} limit={this.props.limit}/> : null}
             </div>

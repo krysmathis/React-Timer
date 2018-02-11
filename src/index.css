@@ -16,3 +16,7 @@ body {
   display: flex;
   justify-content: space-between;
 }
+
+.updateListing {
+  padding-right: 20px;
+}
